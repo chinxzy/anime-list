@@ -1,0 +1,52 @@
+@import 'src/styles/_variables.scss';
+
+.main {
+
+    &__anime-title {
+        text-align: center;
+        font-weight: 600;
+        padding: 0.3em;
+    }
+
+    &__anime-card {
+        height: 100em !important;
+    }
+}
+
+.anime {
+    background-color: #EDF1F5;
+}
+
+.anime-section {
+    background-color: #EDF1F5;
+
+    &__top-div {
+        background-color: #FAFAFA;
+    }
+
+    &__top-right-div {
+        div {
+            margin-bottom: 1em !important;
+            background-color: #FAFAFA;
+        }
+    }
+
+    &__side-div {
+        background-color: #FAFAFA;
+        border-radius: 5px;
+        padding: 1.5em !important;
+
+        div {
+            margin-bottom: 7px;
+        }
+
+        p {
+            color: #657A91;
+        }
+
+        h4 {
+            color: #2d3032c5;
+        }
+    }
+
+}
