@@ -1,5 +1,10 @@
 export interface AnimeRequestStatus {
     getAnime: Status;
+    getAnimeDetails: Status
+    getAnimeCharacters: Status;
+    getAnimeStaffs: Status;
+    getAnimeStatistics: Status;
+    getAnimeTrailer: Status;
 }
 
 export interface query {
@@ -31,11 +36,15 @@ export interface paginatedAnimeList {
 }
 
 export interface characterList {
-    actors: Array<AnimeCharacters>
+    data: Array<AnimeCharacters>
 }
 
 export interface voiceCharacterList {
-    voiceActors: Array<AnimeVoiceCharacters>
+    voice_actors: Array<AnimeVoiceCharacters>
+}
+
+export interface staffList {
+    data: Array<AnimeStaff>
 }
 export interface pagination {
     last_visible_page: number;
@@ -98,9 +107,22 @@ export interface AnimeVoiceCharacters {
                 image_url: string
             }
         }
+        name: string;
     }
-    name: string;
     language: string
+
+}
+
+export interface AnimeStaff {
+    person: {
+        images: {
+            jpg: {
+                image_url: string
+            }
+        }
+        name: string;
+    }
+    position: []
 
 }
 export const defaultPagination = {

@@ -2,43 +2,58 @@
 import { ref, computed, defineComponent, PropType } from "vue";
 import { useStore } from "../store/index";
 import { State } from "../store/modules/anime";
-import { Anime, paginatedAnimeList, Status } from "../types/anime";
+import {
+  Anime,
+  AnimeCharacters,
+  AnimeStaff,
+  AnimeVoiceCharacters,
+  characterList,
+  paginatedAnimeList,
+  Status,
+} from "../types/anime";
 
 export default defineComponent({
   name: "AnimeSection",
 
   data: () => ({
-    width: 400,
-    aspectRatio: 16 / 9,
-    aspectRatios: [
-      {
-        title: "16/9",
-        value: 16 / 9,
-      },
-      {
-        title: "4/3",
-        value: 4 / 3,
-      },
-      {
-        title: "1/1",
-        value: 1,
-      },
-    ],
     items: ["Add to Watchlist", "Set to Watching"],
   }),
 
   setup() {
     const store = useStore();
+    console.log(store);
 
     const animeState = computed<State>(() => store.state.anime);
+
     const anime = computed<Anime>(() => animeState.value.animeDetail);
+
+    const characters = computed<AnimeCharacters[]>(
+      () => animeState.value.animeCharacters.data
+    );
+
+    const staffs = computed<AnimeStaff[]>(
+      () => animeState.value.animeStaff.data
+    );
+
     const loadingState = ref({
       getAnime: computed<Status>(
         () => animeState.value.animeRequestStatus.getAnime
       ),
+
+      getAnimeDetails: computed<Status>(
+        () => animeState.value.animeRequestStatus.getAnimeDetails
+      ),
+
+      getAnimeCharacters: computed<Status>(
+        () => animeState.value.animeRequestStatus.getAnimeCharacters
+      ),
+
+      getAnimeStaffs: computed<Status>(
+        () => animeState.value.animeRequestStatus.getAnimeStaffs
+      ),
     });
 
-    return { store, anime, loadingState, animeState };
+    return { store, anime, loadingState, animeState, characters, staffs };
   },
 
   methods: {
@@ -47,6 +62,19 @@ export default defineComponent({
       await this.store.dispatch("anime/fetchSingleAnime", id);
       return;
     },
+
+    async getSingleAnimesCharacter() {
+      const id = Number(this.$route.params.id);
+      await this.store.dispatch("anime/fetchSingleAnimeCharacters", id);
+      return;
+    },
+
+    async getSingleAnimeStaff() {
+      const id = Number(this.$route.params.id);
+      await this.store.dispatch("anime/fetchSingleAnimeStaffs", id);
+      return;
+    },
+
     getFormattedDateFrom() {
       return new Date(this.anime.aired.from).toLocaleDateString("en-us", {
         month: "short",
@@ -69,12 +97,45 @@ export default defineComponent({
 
       if (this.anime.airing === true) return "Ongoing";
     },
+
     formatNumber() {
       return this.anime.scored_by.toLocaleString("en-US");
     },
+
+    getJapaneseVoiceActor(voiceActors: AnimeVoiceCharacters[]): string {
+      const actor = voiceActors.find(
+        (actor) => actor.language.toLocaleLowerCase() === "japanese"
+      );
+      if (actor) {
+        return actor.language;
+      }
+      return "";
+    },
+
+    getJapaneseVoiceActorName(voiceActors: AnimeVoiceCharacters[]): string {
+      const actor = voiceActors.find(
+        (actor) => actor.language.toLocaleLowerCase() === "japanese"
+      );
+      if (actor) {
+        return actor.person.name;
+      }
+      return "";
+    },
+
+    // getJapaneseVoiceActorImage(voiceActors: AnimeVoiceCharacters[]): string {
+    //   const actor = voiceActors.find(
+    //     (actor) => actor.language.toLocaleLowerCase() === "japanese"
+    //   );
+    //   if (actor) {
+    //     return actor.person.images.jpg.image_url;
+    //   }
+    //   return "";
+    // },
   },
   mounted() {
     this.getSingleAnimes();
+    this.getSingleAnimesCharacter();
+    this.getSingleAnimeStaff();
   },
 });
 </script>
@@ -156,7 +217,7 @@ export default defineComponent({
     <div>
       <v-container class="fill-height">
         <v-row no-gutters>
-          <v-col cols="4">
+          <v-col cols="3">
             <v-sheet class="ma-2 pa-2 anime-section__side-div">
               <div>
                 <h4>Airing</h4>
@@ -214,7 +275,7 @@ export default defineComponent({
             </v-sheet>
           </v-col>
 
-          <v-col cols="8">
+          <v-col cols="9">
             <v-sheet class="ma-2 pa-2">
               <div>
                 <h4>Background</h4>
@@ -222,10 +283,104 @@ export default defineComponent({
               </div>
             </v-sheet>
 
-            <v-sheet class="ma-2 pa-2">
+            <v-sheet class="mt-2 pa-2 anime-section__character-div">
               <div>
-                <h4>Characters</h4>
-                <p>just</p>
+                <h3>Characters</h3>
+                <v-row no-gutters>
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    v-for="item in characters"
+                    :key="item.character.mal_id"
+                  >
+                    <v-sheet
+                      height="180"
+                      class="mb-2 mr-3 pa-2 anime-section__character-div__row"
+                    >
+                      <v-row no-gutters>
+                        <v-col cols="6">
+                          <v-sheet
+                            class="anime-section__character-div__colleft"
+                          >
+                            <v-img
+                              class="bg-dark"
+                              width="100"
+                              :aspect-ratio="1"
+                              :src="item.character.images.jpg.image_url"
+                              cover
+                            ></v-img>
+                            <h4>{{ item.character.name }}</h4>
+                            <p>{{ item.role }}</p>
+                          </v-sheet>
+                        </v-col>
+
+                        <v-col
+                          cols="6"
+                          class="
+                            anime-section__character-div__colright
+                            d-flex
+                            justify-end
+                          "
+                        >
+                          <v-sheet width="100">
+                            <v-img
+                              class="bg-dark"
+                              width="100"
+                              :aspect-ratio="1"
+                              :src="
+                                getJapaneseVoiceActorImage(item.voice_actors)
+                              "
+                              cover
+                            ></v-img>
+                            <h4>
+                              {{ getJapaneseVoiceActorName(item.voice_actors) }}
+                            </h4>
+                            <p>
+                              {{ getJapaneseVoiceActor(item.voice_actors) }}
+                            </p>
+                          </v-sheet>
+                        </v-col>
+                      </v-row>
+                    </v-sheet>
+                  </v-col>
+                </v-row>
+              </div>
+            </v-sheet>
+
+            <v-sheet class="mt-2 pa-2 anime-section__character-div">
+              <div>
+                <h3>Staffs</h3>
+                <v-row no-gutters>
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    v-for="item in staffs"
+                    :key="item.person.mal_id"
+                  >
+                    <v-sheet
+                      height="180"
+                      class="mb-2 mr-3 pa-2 anime-section__character-div__row"
+                    >
+                      <v-row no-gutters>
+                        <v-col v-for="n in 2" :key="n" cols="12" sm="6">
+                          <v-sheet
+                            class="anime-section__character-div__colleft"
+                          >
+                            <v-img
+                              class="bg-dark"
+                              width="100"
+                              :aspect-ratio="1"
+                              :src="item.person.images.jpg.image_url"
+                              cover
+                            ></v-img>
+                            <h4>{{ item.person.name }}</h4>
+                            <p>{{ item.position }}</p>
+                          </v-sheet>
+                        </v-col>
+                      </v-row>
+                    </v-sheet>
+                  </v-col>
+                </v-row>
               </div>
             </v-sheet>
           </v-col>

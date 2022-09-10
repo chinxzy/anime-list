@@ -29,6 +29,11 @@
             margin-bottom: 1em !important;
             background-color: #FAFAFA;
         }
+
+        p {
+            font-size: 14px;
+            color: #2d3032c5;
+        }
     }
 
     &__side-div {
@@ -42,10 +47,43 @@
 
         p {
             color: #657A91;
+            font-size: 13px;
         }
 
         h4 {
             color: #2d3032c5;
+        }
+    }
+
+    &__character-div {
+        background-color: #EDF1F5;
+        font-size: 13px;
+        color: #657A91;
+
+        p {
+            color: #657A91;
+            text-align: center;
+        }
+
+        h4 {
+            color: #657A91;
+            text-align: center;
+        }
+
+        &__row {
+            border-radius: 5px;
+        }
+
+        &__colleft {
+
+            h4,
+            p {
+                text-align: left;
+            }
+        }
+
+        &__colright {
+            text-align: right;
         }
     }
 
